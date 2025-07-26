@@ -1,18 +1,8 @@
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        maven {
-            name = "Forge"
-            url = "https://maven.minecraftforge.net/"
-        }
-    }
-}
-
 plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
-group = 'com.jmeno' // Změň dle balíčku
+group = 'com.jmeno'
 version = '1.0'
 archivesBaseName = 'wolfchunkloader'
 
@@ -43,10 +33,7 @@ minecraft {
 }
 
 repositories {
-    maven {
-        name = "Forge"
-        url = "https://maven.minecraftforge.net/"
-    }
+    maven { url = "https://maven.minecraftforge.net/" }
 }
 
 dependencies {
@@ -55,7 +42,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes([
+        attributes(
             "Specification-Title": "wolfchunkloader",
             "Specification-Vendor": "jmeno",
             "Specification-Version": "1",
@@ -63,6 +50,6 @@ jar {
             "Implementation-Version": version,
             "Implementation-Vendor": "jmeno",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+        )
     }
 }
