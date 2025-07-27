@@ -1,8 +1,9 @@
 plugins {
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.minecraftforge.gradle' version '6.0.16' // nejnovější ForgeGradle pro 1.20.1
+    id 'java'
 }
 
-group = 'com.jmeno'
+group = 'com.example'
 version = '1.0'
 archivesBaseName = 'wolfchunkloader'
 
@@ -13,43 +14,18 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-            property 'forge.logging.console.level', 'debug'
-            mods {
-                wolfchunkloader {
-                    source sourceSets.main
-                }
-            }
-        }
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.console.level', 'debug'
-            mods {
-                wolfchunkloader {
-                    source sourceSets.main
-                }
-            }
         }
     }
 }
 
 repositories {
-    maven { url = "https://maven.minecraftforge.net/" }
+    maven {
+        name = "Forge"
+        url = "https://maven.minecraftforge.net"
+    }
+    mavenCentral()
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
-}
-
-jar {
-    manifest {
-        attributes(
-            "Specification-Title": "wolfchunkloader",
-            "Specification-Vendor": "jmeno",
-            "Specification-Version": "1",
-            "Implementation-Title": "wolfchunkloader",
-            "Implementation-Version": version,
-            "Implementation-Vendor": "jmeno",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        )
-    }
 }
