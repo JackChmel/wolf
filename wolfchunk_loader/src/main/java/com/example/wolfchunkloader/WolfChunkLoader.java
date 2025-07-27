@@ -2,9 +2,9 @@ package com.example.wolfchunkloader;
 
 import net.minecraftforge.fml.common.Mod;
 
-@Mod("wolfchunkloader")
+@Mod("wolfchunk_loader")
 public class WolfChunkLoader {
     public WolfChunkLoader() {
-        System.out.println("WolfChunkLoader loaded!");
+        System.out.println("WolfChunkLoader mod byl úspěšně načten!");
     }
 }
