@@ -1,8 +1,10 @@
 modLoader="javafml"
-loaderVersion="[47,)"
+loaderVersion="[47,)" # Forge 1.20.1+
 license="MIT"
 [[mods]]
-modId="wolfchunkloader"
+modId="wolfchunk_loader"
 version="1.0"
 displayName="Wolf Chunk Loader"
-description="Chunk loader mod."
+description='''
+Testovací Forge mod.
+'''
