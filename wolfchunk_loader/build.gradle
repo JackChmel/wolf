@@ -2,7 +2,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '6.0.+'
 }
 
-group = 'com.example'
+group = 'com.example.wolfchunkloader'
 version = '1.0'
 archivesBaseName = 'wolfchunkloader'
 
@@ -10,10 +10,12 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     mappings channel: 'official', version: '1.20.1'
+
     runs {
         server {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'debug'
+
             mods {
                 wolfchunkloader {
                     source sourceSets.main
@@ -29,12 +31,21 @@ dependencies {
 
 jar {
     manifest {
-        attributes([
+        attributes(
             "Specification-Title": "WolfChunkLoader",
             "Specification-Vendor": "example",
-            "Implementation-Title": project.name,
-            "Implementation-Version": project.version,
+            "Implementation-Title": archivesBaseName,
+            "Implementation-Version": version,
             "Implementation-Vendor": "example"
-        ])
+        )
     }
+
+    // Zahrne resources do JARu (mods.toml, pack.mcmeta atd.)
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
