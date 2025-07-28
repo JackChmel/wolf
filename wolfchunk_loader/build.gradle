@@ -1,7 +1,5 @@
 plugins {
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
-    id 'eclipse'
-    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '6.0.+'
 }
 
 group = 'com.example'
@@ -13,16 +11,9 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 minecraft {
     mappings channel: 'official', version: '1.20.1'
     runs {
-        client {
-            workingDirectory project.file('run')
-            mods {
-                wolfchunkloader {
-                    source sourceSets.main
-                }
-            }
-        }
         server {
             workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
             mods {
                 wolfchunkloader {
                     source sourceSets.main
@@ -39,15 +30,11 @@ dependencies {
 jar {
     manifest {
         attributes([
-            "Specification-Title": "wolfchunkloader",
-            "Specification-Version": "1",
+            "Specification-Title": "WolfChunkLoader",
+            "Specification-Vendor": "example",
             "Implementation-Title": project.name,
             "Implementation-Version": project.version,
             "Implementation-Vendor": "example"
         ])
-    }
-
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
