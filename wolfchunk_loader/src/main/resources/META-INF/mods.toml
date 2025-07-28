@@ -1,10 +1,16 @@
 modLoader="javafml"
-loaderVersion="[47,)" # Forge 1.20.1+
+loaderVersion="[47,)" 
 license="MIT"
+
 [[mods]]
 modId="wolfchunk_loader"
 version="1.0"
 displayName="Wolf Chunk Loader"
-description='''
-Testovací Forge mod.
-'''
+description='''Mod pro udržení chunků načtených.'''
+
+[[dependencies.wolfchunk_loader]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47.0.0,)"
+    ordering="NONE"
+    side="SERVER"
