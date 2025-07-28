@@ -1,9 +1,8 @@
-modLoader = "javafml"
-loaderVersion = "[47,)"
-license = "MIT"
-
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
 [[mods]]
-modId = "wolfchunkloader"
-version = "1.0"
-displayName = "Wolf Chunk Loader"
-description = "Loads chunks around tamed wolves and cats"
+modId="wolfchunkloader"
+version="1.0"
+displayName="Wolf Chunk Loader"
+description="Keeps chunks loaded around tamed wolves."
