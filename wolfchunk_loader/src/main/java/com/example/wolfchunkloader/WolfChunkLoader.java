@@ -1,54 +1,51 @@
 package com.example.wolfchunkloader;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.server.level.TicketType;
-import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.cat.Cat;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.TickEvent;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.DistanceManager;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.world.level.chunk.LevelChunk;
+
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.List;
+import java.util.Comparator;
 
 @Mod("wolfchunkloader")
 public class WolfChunkLoader {
+    private static final TicketType<ChunkPos> WOLF_LOADER_TICKET = TicketType.create("wolf_loader", Comparator.comparingLong(ChunkPos::toLong));
+    private int tickCounter = 0;
 
-    public static final TicketType<ChunkPos> WOLF_LOADER_TICKET = TicketType.create("wolf_loader", ChunkPos::hashCode);
-
-    public WolfChunkLoader() {}
+    public WolfChunkLoader() {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
 
     @SubscribeEvent
-    public void onServerTick(TickEvent.WorldTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || event.world.isClientSide()) return;
+    public void onServerTick(ServerTickEvent event) {
+        tickCounter++;
+        if (tickCounter < 20) return;
+        tickCounter = 0;
 
-        ServerLevel level = (ServerLevel) event.world;
+        for (ServerLevel level : event.getServer().getAllLevels()) {
+            for (Entity entity : level.getEntities().getAll()) {
+                if ((entity instanceof Wolf wolf && wolf.isTame()) || (entity instanceof Cat cat && cat.isTame())) {
+                    ChunkPos pos = new ChunkPos(entity.blockPosition());
+                    DistanceManager distanceManager = level.getChunkSource().chunkMap.getDistanceManager();
 
-        if (level.getGameTime() % 20 != 0) return;
-
-        AABB area = new AABB(
-                level.getWorldBorder().getMinX(), 0, level.getWorldBorder().getMinZ(),
-                level.getWorldBorder().getMaxX(), level.getMaxBuildHeight(), level.getWorldBorder().getMaxZ()
-        );
-
-        List<Wolf> wolves = level.getEntitiesOfClass(Wolf.class, area);
-        List<Cat> cats = level.getEntitiesOfClass(Cat.class, area);
-
-        for (Wolf wolf : wolves) {
-            if (wolf.isTame()) {
-                ChunkPos pos = new ChunkPos(wolf.blockPosition());
-                level.getChunkSource().addRegionTicket(WOLF_LOADER_TICKET, pos, 2, pos);
-            }
-        }
-
-        for (Cat cat : cats) {
-            if (cat.isTame()) {
-                ChunkPos pos = new ChunkPos(cat.blockPosition());
-                level.getChunkSource().addRegionTicket(WOLF_LOADER_TICKET, pos, 2, pos);
+                    for (int dx = -1; dx <= 1; dx++) {
+                        for (int dz = -1; dz <= 1; dz++) {
+                            ChunkPos chunk = new ChunkPos(pos.x + dx, pos.z + dz);
+                            distanceManager.addTicket(WOLF_LOADER_TICKET, chunk, 2, chunk);
+                        }
+                    }
+                }
             }
         }
     }
