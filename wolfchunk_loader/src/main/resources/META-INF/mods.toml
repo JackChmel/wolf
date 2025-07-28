@@ -1,8 +1,20 @@
 modLoader="javafml"
 loaderVersion="[47,)"
 license="MIT"
+issueTrackerURL=""
+
 [[mods]]
 modId="wolfchunkloader"
 version="1.0"
 displayName="Wolf Chunk Loader"
-description="Mod, který způsobí, že ochočený vlk nebo kočka načítají okolní chunky (3x3)."
+description='''
+Loads chunks automatically if a tamed wolf or cat is present.
+Server-side only mod.
+'''
+
+[[dependencies.wolfchunkloader]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="SERVER"
