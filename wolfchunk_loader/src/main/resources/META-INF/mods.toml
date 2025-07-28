@@ -1,8 +1,28 @@
-modLoader="javafml"
-loaderVersion="[47,)"
-license="MIT"
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "MIT"
+issueTrackerURL = "https://github.com/tvoje-uzivatelske-jmeno/wolfchunkloader/issues"
+
 [[mods]]
-modId="wolfchunkloader"
-version="1.0"
-displayName="Wolf Chunk Loader"
-description="Keeps chunks loaded around tamed wolves."
+modId = "wolfchunkloader"
+version = "1.0"
+displayName = "Wolf Chunk Loader"
+description = '''
+Keeps chunks loaded around tamed wolves (and optionally cats). Designed for servers.
+'''
+
+# Optional metadata
+authors = "JackChmel"
+logoFile = ""
+
+# This tells Forge the mod only runs on the server
+displayURL = "https://example.com" # můžeš nahradit odkazem na GitHub/CurseForge
+credits = "Inspired by Reddit feedback from r/feedthebeast"
+
+# Závislosti (Forge)
+[[dependencies.wolfchunkloader]]
+    modId = "forge"
+    mandatory = true
+    versionRange = "[47.0.0,)"
+    ordering = "NONE"
+    side = "SERVER"
