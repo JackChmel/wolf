@@ -1,20 +1,9 @@
-modLoader="javafml"
-loaderVersion="[47,)"
-license="MIT"
-issueTrackerURL=""
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "MIT"
 
 [[mods]]
-modId="wolfchunkloader"
-version="1.0"
-displayName="Wolf Chunk Loader"
-description='''
-Loads chunks automatically if a tamed wolf or cat is present.
-Server-side only mod.
-'''
-
-[[dependencies.wolfchunkloader]]
-modId="forge"
-mandatory=true
-versionRange="[47,)"
-ordering="NONE"
-side="SERVER"
+modId = "wolfchunkloader"
+version = "1.0"
+displayName = "Wolf Chunk Loader"
+description = "Loads chunks around tamed wolves and cats"
