@@ -1,17 +1,12 @@
 package com.example.wolfchunkloader;
 
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Wolf;
-import net.minecraft.server.level.ChunkMap;
-import net.minecraft.server.level.ChunkHolder;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
-import net.minecraft.server.level.ChunkLoader;
-import net.minecraft.server.level.TicketType;
-import net.minecraft.server.level.Ticket;
+import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,19 +14,34 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod("wolfchunkloader")
 public class WolfChunkLoader {
-    public static final TicketType<String> WOLF_CHUNK = TicketType.create("wolf_chunk", String::compareTo);
+    private static int tickCounter = 0;
+
+    public WolfChunkLoader() {
+        // Mod constructor (prázdný nebo logování)
+    }
 
     @SubscribeEvent
-    public void onServerTick(TickEvent.LevelTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || event.level.isClientSide()) return;
+    public void onServerTick(TickEvent.WorldTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || event.world.isClientSide()) return;
 
-        ServerLevel level = (ServerLevel) event.level;
+        tickCounter++;
+        if (tickCounter < 20) return;
+        tickCounter = 0;
 
-        for (Entity entity : level.getAllEntities()) {
-            if (!(entity instanceof Wolf wolf && wolf.isTame())) continue;
+        Level level = event.world;
+        if (!(level instanceof ServerLevel serverLevel)) return;
 
-            ChunkPos chunkPos = new ChunkPos(wolf.blockPosition());
-            level.getChunkSource().addRegionTicket(WOLF_CHUNK, chunkPos, 2, "wolf");
+        ServerChunkCache chunkSource = serverLevel.getChunkSource();
+
+        for (Entity entity : serverLevel.getAllEntities()) {
+            if ((entity instanceof Wolf wolf && wolf.isTame()) || (entity instanceof Cat cat && cat.isTame())) {
+                ChunkPos centerPos = new ChunkPos(entity.blockPosition());
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dz = -1; dz <= 1; dz++) {
+                        chunkSource.chunkMap.forceChunk(centerPos.x + dx, centerPos.z + dz, true);
+                    }
+                }
+            }
         }
     }
 }
