@@ -1,7 +1,8 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
 [[mods]]
 modId="wolfchunkloader"
-version="1.0.0"
-displayName="WolfChunkLoader"
-description='''Tento mod zajišťuje, že ochočení vlci a kočky načítají chunky ve svém okolí (3x3), aby zůstaly aktivní i bez hráče.'''
-# Toto označí mod jako server-side only:
-displayTest="IGNORE_ALL_VERSION"
+version="1.0"
+displayName="Wolf Chunk Loader"
+description="Mod, který způsobí, že ochočený vlk nebo kočka načítají okolní chunky (3x3)."
