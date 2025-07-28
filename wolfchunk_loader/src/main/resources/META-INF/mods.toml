@@ -3,7 +3,7 @@ loaderVersion="[47,)"
 license="MIT"
 
 [[mods]]
-modId="wolfchunk_loader"
+modId="wolfchunkloader"
 version="1.0"
 displayName="Wolf Chunk Loader"
 description='''Mod pro udržení chunků načtených.'''
