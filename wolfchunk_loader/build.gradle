@@ -1,32 +1,22 @@
 plugins {
-    id 'net.minecraftforge.gradle' version '6.0.24'
-    id 'java'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'eclipse'
+    id 'maven-publish'
 }
 
-group = 'com.example'
+group = 'com.example' // libovolné, třeba tvoje jméno/doména
 version = '1.0.0'
 archivesBaseName = 'wolfchunkloader'
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     mappings channel: 'official', version: '1.20.1'
-    runs {
-        client {
-            workingDirectory project.file("run/client")
-            mods {
-                wolfchunkloader {
-                    source sourceSets.main
-                }
-            }
-        }
 
+    // Konfigurace běhu klienta/serveru
+    runs {
         server {
-            workingDirectory project.file("run/server")
+            workingDirectory project.file('run')
             mods {
                 wolfchunkloader {
                     source sourceSets.main
@@ -37,27 +27,26 @@ minecraft {
 }
 
 repositories {
-    maven {
-        name = "Forge"
-        url = "https://maven.minecraftforge.net/"
-    }
-    mavenCentral()
+    // Forge maven je standardně přidán Forge pluginem
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
+
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "wolfchunkloader",
-                "Specification-Vendor"    : "example",
-                "Specification-Version"   : "1.0",
-                "Implementation-Title"    : "wolfchunkloader",
-                "Implementation-Version"  : version,
-                "Implementation-Vendor"   : "example",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            "Specification-Title": "wolfchunkloader",
+            "Specification-Vendor": "example",
+            "Implementation-Title": project.name,
+            "Implementation-Version": project.version,
+            "Implementation-Vendor": "example"
         ])
     }
 }
