@@ -4,5 +4,4 @@ pluginManagement {
         maven { name = "Forge"; url = "https://maven.minecraftforge.net/" }
     }
 }
-
 rootProject.name = 'wolfchunkloader'
