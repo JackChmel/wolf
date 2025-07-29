@@ -4,7 +4,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Wolf;
-import net.minecraft.world.entity.animal.TamableAnimal;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -15,12 +15,11 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-@Mod(wolfchunkloader)
+@Mod("wolfchunkloader")
 @Mod.EventBusSubscriber
 public class ExampleMod {
 
-    public ExampleMod() {
-        CommonClass.init();
+    public WolfChunkLoader() {
     }
 
     public static final HashMap<UUID, ChunkPos> WOLF_POSITIONS = new HashMap<>();
