@@ -45,14 +45,22 @@ public class WolfChunkLoader {
         List<UUID> seen = new ArrayList<>();
 
         for (Entity entity : level.getAllEntities()) {
-            if (!(entity instanceof Wolf || entity instanceof Cat)) continue;
-            if (!entity.isTame()) continue;
+            boolean isValid = false;
+
+            if (entity instanceof Wolf wolf) {
+                if (!wolf.isTame()) continue;
+                isValid = true;
+            } else if (entity instanceof Cat cat) {
+                if (!cat.isTame()) continue;
+                isValid = true;
+            }
+
+            if (!isValid) continue;
 
             UUID id = entity.getUUID();
             ChunkPos center = new ChunkPos(entity.blockPosition());
             Set<ChunkPos> newChunks = getChunksAround(center);
 
-            // Unload old chunks
             Set<ChunkPos> oldChunks = entityChunks.getOrDefault(id, Set.of());
             for (ChunkPos chunk : oldChunks) {
                 if (!newChunks.contains(chunk)) {
@@ -63,7 +71,6 @@ public class WolfChunkLoader {
                 }
             }
 
-            // Load new chunks
             for (ChunkPos chunk : newChunks) {
                 if (!oldChunks.contains(chunk)) {
                     level.setChunkForced(chunk.x, chunk.z, true);
@@ -75,7 +82,6 @@ public class WolfChunkLoader {
             seen.add(id);
         }
 
-        // Cleanup removed entities
         entityChunks.keySet().removeIf(id -> {
             if (seen.contains(id)) return false;
             Set<ChunkPos> chunks = entityChunks.get(id);
@@ -120,3 +126,4 @@ public class WolfChunkLoader {
         chunkEntities.clear();
     }
 }
+
