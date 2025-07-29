@@ -1,17 +1,18 @@
-modLoader = "javafml"
-loaderVersion = "[47,)"
-license = "MIT"
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
 
 [[mods]]
-modId = "wolfchunkloader"
-version = "1.0.0"
-displayName = "Wolf Chunk Loader"
-description = "Loads chunks around tamed wolves and cats."
-authors = ["YourName"]
+modId="wolfchunk_loader"
+version="1.0.0"
+displayName="WolfChunk Loader"
+description='''
+Automatically loads chunks around tamed wolves and cats.
+'''
 
-[[dependencies.wolfchunkloader]]
-modId = "forge"
-mandatory = true
-versionRange = "[47.4.0,)"
-ordering = "NONE"
-side = "SERVER"
+[[dependencies.wolfchunk_loader]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47.4.0,)"
+    ordering="NONE"
+    side="SERVER"
