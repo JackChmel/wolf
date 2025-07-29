@@ -32,7 +32,7 @@ public class WolfChunkLoader {
         if (e instanceof TamableAnimal) {
             TamableAnimal tamable = (TamableAnimal) e;
             if (tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat) && !tamable.level().isClientSide()) {
-                ExampleMod.onMobTick(tamable);
+                WolfChunkLoader.onMobTick(tamable);
             }
         }
     }
@@ -43,7 +43,7 @@ public class WolfChunkLoader {
         if (e instanceof TamableAnimal) {
             TamableAnimal tamable = (TamableAnimal) e;
             if (tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat) && !tamable.level().isClientSide()) {
-                ExampleMod.onMobRemoved(tamable);
+                WolfChunkLoader.onMobRemoved(tamable);
             }
         }
     }
@@ -51,7 +51,7 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onWorldLoad(ServerStartedEvent event) {
         event.getServer().getAllLevels().forEach(level -> {
-            ExampleMod.initializeForWorld(level);
+            WolfChunkLoader.initializeForWorld(level);
         });
     }
 
@@ -71,7 +71,7 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onWorldUnload(ServerStoppingEvent event) {
         event.getServer().getAllLevels().forEach(level -> {
-            ExampleMod.cleanupForWorld(level);
+            WolfChunkLoader.cleanupForWorld(level);
         });
     }
 
