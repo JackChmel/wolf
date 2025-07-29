@@ -17,7 +17,7 @@ import java.util.*;
 
 @Mod("wolfchunkloader")
 @Mod.EventBusSubscriber
-public class ExampleMod {
+public class WolfChunkLoader {
 
     public WolfChunkLoader() {
     }
