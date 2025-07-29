@@ -1,23 +1,8 @@
-modLoader="javafml"
-loaderVersion="[47,)" # Forge 1.20.1
-license="MIT"
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "MIT"
 [[mods]]
-modId="wolfchunkloader"
-version="1.0"
-displayName="Wolf Chunk Loader"
-description='''
-Forces chunks to load around tamed wolves and cats every second. Server-side only, works in singleplayer too.
-'''
-
-[[dependencies.wolfchunkloader]]
-    modId="forge"
-    mandatory=true
-    versionRange="[47,)"
-    ordering="NONE"
-    side="SERVER"
-[[dependencies.wolfchunkloader]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.20.1]"
-    ordering="NONE"
-    side="SERVER"
+modId = "wolfchunkloader"
+version = "1.0"
+displayName = "WolfChunkLoader"
+description = "Loads 3x3 chunks around tamed wolves and cats every second"
