@@ -1,8 +1,9 @@
 plugins {
-    id 'net.minecraftforge.gradle' version '6.0.+'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'java'
 }
 
-group = 'com.example.wolfchunkloader'
+group = 'com.example'
 version = '1.0'
 archivesBaseName = 'wolfchunkloader'
 
@@ -10,12 +11,10 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     mappings channel: 'official', version: '1.20.1'
-
+    copyIdeResources = true
     runs {
         server {
             workingDirectory project.file('run')
-            property 'forge.logging.console.level', 'debug'
-
             mods {
                 wolfchunkloader {
                     source sourceSets.main
@@ -25,27 +24,15 @@ minecraft {
     }
 }
 
-dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
+repositories {
+    maven { url 'https://maven.minecraftforge.net/' }
 }
 
-jar {
-    manifest {
-        attributes(
-            "Specification-Title": "WolfChunkLoader",
-            "Specification-Vendor": "example",
-            "Implementation-Title": archivesBaseName,
-            "Implementation-Version": version,
-            "Implementation-Vendor": "example"
-        )
-    }
-
-    // Zahrne resources do JARu (mods.toml, pack.mcmeta atd.)
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.release = 17
 }
