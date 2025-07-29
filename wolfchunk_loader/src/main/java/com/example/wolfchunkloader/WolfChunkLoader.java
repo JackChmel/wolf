@@ -1,3 +1,5 @@
+package com.example.wolfchunkloader;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Cat;
@@ -13,7 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-@Mod(Constants.MOD_ID)
+@Mod(wolfchunkloader)
 @Mod.EventBusSubscriber
 public class ExampleMod {
 
@@ -27,23 +29,23 @@ public class ExampleMod {
 
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-        if (event.getEntity() instanceof TamableAnimal tamable &&
-            tamable.isTame() &&
-            (tamable instanceof Wolf || tamable instanceof Cat) &&
-            !tamable.level().isClientSide()) {
-
-            ExampleMod.onMobTick(tamable);
+        Entity e = event.getEntity();
+        if (e instanceof TamableAnimal) {
+            TamableAnimal tamable = (TamableAnimal) e;
+            if (tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat) && !tamable.level().isClientSide()) {
+                ExampleMod.onMobTick(tamable);
+            }
         }
     }
 
     @SubscribeEvent
     public static void onEntityLeaveWorld(EntityLeaveLevelEvent event) {
-        if (event.getEntity() instanceof TamableAnimal tamable &&
-            tamable.isTame() &&
-            (tamable instanceof Wolf || tamable instanceof Cat) &&
-            !tamable.level().isClientSide()) {
-
-            ExampleMod.onMobRemoved(tamable);
+        Entity e = event.getEntity();
+        if (e instanceof TamableAnimal) {
+            TamableAnimal tamable = (TamableAnimal) e;
+            if (tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat) && !tamable.level().isClientSide()) {
+                ExampleMod.onMobRemoved(tamable);
+            }
         }
     }
 
@@ -56,13 +58,13 @@ public class ExampleMod {
 
     public static void initializeForWorld(ServerLevel level) {
         for (Entity entity : level.getAllEntities()) {
-            if (entity instanceof TamableAnimal tamable &&
-                tamable.isTame() &&
-                (tamable instanceof Wolf || tamable instanceof Cat)) {
-
-                Set<ChunkPos> chunks = getChunksAroundMob(tamable);
-                forceLoadChunks(level, chunks);
-                WOLF_CHUNKS.put(tamable.getUUID(), chunks);
+            if (entity instanceof TamableAnimal) {
+                TamableAnimal tamable = (TamableAnimal) entity;
+                if (tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat)) {
+                    Set<ChunkPos> chunks = getChunksAroundMob(tamable);
+                    forceLoadChunks(level, chunks);
+                    WOLF_CHUNKS.put(tamable.getUUID(), chunks);
+                }
             }
         }
     }
@@ -82,17 +84,17 @@ public class ExampleMod {
             Set<ChunkPos> chunks = entry.getValue();
 
             Entity entity = level.getEntity(id);
-            if (entity instanceof TamableAnimal tamable &&
-                (tamable instanceof Wolf || tamable instanceof Cat) &&
-                !chunks.isEmpty()) {
+            if (entity instanceof TamableAnimal) {
+                TamableAnimal tamable = (TamableAnimal) entity;
+                if ((tamable instanceof Wolf || tamable instanceof Cat) && !chunks.isEmpty()) {
+                    toRemove.add(id);
 
-                toRemove.add(id);
-
-                for (ChunkPos chunk : chunks) {
-                    try {
-                        level.setChunkForced(chunk.x, chunk.z, false);
-                    } catch (Exception e) {
-                        System.err.println("Failed to unforce chunk " + chunk + ": " + e.getMessage());
+                    for (ChunkPos chunk : chunks) {
+                        try {
+                            level.setChunkForced(chunk.x, chunk.z, false);
+                        } catch (Exception e) {
+                            System.err.println("Failed to unforce chunk " + chunk + ": " + e.getMessage());
+                        }
                     }
                 }
             }
