@@ -5,10 +5,14 @@ plugins {
 }
 
 group = 'com.example'
-version = '1.0.0'
+version = '2.0.1'
 archivesBaseName = 'wolfchunkloader'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 minecraft {
     // Oficiální Mojang mappings
@@ -36,7 +40,7 @@ dependencies {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-    options.release = 17
+    options.release = 21
 }
 
 jar {
