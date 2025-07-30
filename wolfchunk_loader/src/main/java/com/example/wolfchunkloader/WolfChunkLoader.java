@@ -47,10 +47,10 @@ public class WolfChunkLoader {
         }
     }
 
-    @SubscribeEvent
-    public static void onWorldLoad(ServerStartedEvent event) {
-        event.getServer().getAllLevels().forEach(WolfChunkLoader::initializeForWorld);
-    }
+@SubscribeEvent
+public static void onWorldLoad(ServerStartedEvent event) {
+    event.getServer().levels().forEach(WolfChunkLoader::initializeForWorld);
+}
 
     public static void initializeForWorld(ServerLevel level) {
         for (Entity entity : level.getAllEntities()) {
