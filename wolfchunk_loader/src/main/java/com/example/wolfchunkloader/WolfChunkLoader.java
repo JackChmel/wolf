@@ -6,6 +6,7 @@ import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -29,8 +30,7 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent event) {
         Entity e = event.getEntity();
-        if (e instanceof TamableAnimal) {
-            TamableAnimal tamable = (TamableAnimal) e;
+        if (e instanceof TamableAnimal tamable) {
             if (tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat) && !tamable.level().isClientSide()) {
                 WolfChunkLoader.onMobTick(tamable);
             }
@@ -40,8 +40,7 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onEntityLeaveWorld(EntityLeaveLevelEvent event) {
         Entity e = event.getEntity();
-        if (e instanceof TamableAnimal) {
-            TamableAnimal tamable = (TamableAnimal) e;
+        if (e instanceof TamableAnimal tamable) {
             if (tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat) && !tamable.level().isClientSide()) {
                 WolfChunkLoader.onMobRemoved(tamable);
             }
@@ -50,15 +49,12 @@ public class WolfChunkLoader {
 
     @SubscribeEvent
     public static void onWorldLoad(ServerStartedEvent event) {
-        event.getServer().getAllLevels().forEach(level -> {
-            WolfChunkLoader.initializeForWorld(level);
-        });
+        event.getServer().getAllLevels().forEach(WolfChunkLoader::initializeForWorld);
     }
 
     public static void initializeForWorld(ServerLevel level) {
         for (Entity entity : level.getAllEntities()) {
-            if (entity instanceof TamableAnimal) {
-                TamableAnimal tamable = (TamableAnimal) entity;
+            if (entity instanceof TamableAnimal tamable) {
                 if (tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat)) {
                     Set<ChunkPos> chunks = getChunksAroundMob(tamable);
                     forceLoadChunks(level, chunks);
@@ -70,9 +66,7 @@ public class WolfChunkLoader {
 
     @SubscribeEvent
     public static void onWorldUnload(ServerStoppingEvent event) {
-        event.getServer().getAllLevels().forEach(level -> {
-            WolfChunkLoader.cleanupForWorld(level);
-        });
+        event.getServer().getAllLevels().forEach(WolfChunkLoader::cleanupForWorld);
     }
 
     public static void cleanupForWorld(ServerLevel level) {
@@ -83,8 +77,7 @@ public class WolfChunkLoader {
             Set<ChunkPos> chunks = entry.getValue();
 
             Entity entity = level.getEntity(id);
-            if (entity instanceof TamableAnimal) {
-                TamableAnimal tamable = (TamableAnimal) entity;
+            if (entity instanceof TamableAnimal tamable) {
                 if ((tamable instanceof Wolf || tamable instanceof Cat) && !chunks.isEmpty()) {
                     toRemove.add(id);
 
