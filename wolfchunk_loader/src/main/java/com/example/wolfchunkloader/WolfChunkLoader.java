@@ -49,7 +49,8 @@ public class WolfChunkLoader {
 
 @SubscribeEvent
 public static void onWorldLoad(ServerStartedEvent event) {
-    event.getServer().levels().forEach(WolfChunkLoader::initializeForWorld);
+    MinecraftServer server = event.getServer();
+    server.getAllLevels().forEach(WolfChunkLoader::initializeForWorld);
 }
 
     public static void initializeForWorld(ServerLevel level) {
