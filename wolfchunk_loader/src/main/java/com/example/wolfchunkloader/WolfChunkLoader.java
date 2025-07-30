@@ -21,9 +21,6 @@ import java.util.*;
 @Mod.EventBusSubscriber
 public class WolfChunkLoader {
 
-    public WolfChunkLoader() {
-    }
-
     public static final HashMap<UUID, ChunkPos> WOLF_POSITIONS = new HashMap<>();
     public static final HashMap<UUID, Set<ChunkPos>> WOLF_CHUNKS = new HashMap<>();
     public static final HashMap<ChunkPos, Set<UUID>> CHUNK_WOLVES = new HashMap<>();
@@ -31,9 +28,9 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent event) {
         Entity e = event.getEntity();
-        if (e instanceof TamableAnimal tamable) {
-            if (tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat) && !tamable.level().isClientSide()) {
-                WolfChunkLoader.onMobTick(tamable);
+        if (e instanceof TamableAnimal tamable && (tamable instanceof Wolf || tamable instanceof Cat)) {
+            if (tamable.isTame() && !tamable.level().isClientSide()) {
+                onMobTick(tamable);
             }
         }
     }
@@ -41,27 +38,25 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onEntityLeaveWorld(EntityLeaveLevelEvent event) {
         Entity e = event.getEntity();
-        if (e instanceof TamableAnimal tamable) {
-            if (tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat) && !tamable.level().isClientSide()) {
-                WolfChunkLoader.onMobRemoved(tamable);
+        if (e instanceof TamableAnimal tamable && (tamable instanceof Wolf || tamable instanceof Cat)) {
+            if (tamable.isTame() && !tamable.level().isClientSide()) {
+                onMobRemoved(tamable);
             }
         }
     }
 
-@SubscribeEvent
-public static void onWorldLoad(ServerStartedEvent event) {
-    MinecraftServer server = event.getServer();
-    server.getAllLevels().forEach(WolfChunkLoader::initializeForWorld);
-}
+    @SubscribeEvent
+    public static void onWorldLoad(ServerStartedEvent event) {
+        MinecraftServer server = event.getServer();
+        server.getAllLevels().forEach(WolfChunkLoader::initializeForWorld);
+    }
 
     public static void initializeForWorld(ServerLevel level) {
         for (Entity entity : level.getAllEntities()) {
-            if (entity instanceof TamableAnimal tamable) {
-                if (tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat)) {
-                    Set<ChunkPos> chunks = getChunksAroundMob(tamable);
-                    forceLoadChunks(level, chunks);
-                    WOLF_CHUNKS.put(tamable.getUUID(), chunks);
-                }
+            if (entity instanceof TamableAnimal tamable && tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat)) {
+                Set<ChunkPos> chunks = getChunksAroundMob(tamable);
+                forceLoadChunks(level, chunks);
+                WOLF_CHUNKS.put(tamable.getUUID(), chunks);
             }
         }
     }
@@ -78,17 +73,22 @@ public static void onWorldLoad(ServerStartedEvent event) {
             UUID id = entry.getKey();
             Set<ChunkPos> chunks = entry.getValue();
 
-            Entity entity = level.getEntity(id);
-            if (entity instanceof TamableAnimal tamable) {
-                if ((tamable instanceof Wolf || tamable instanceof Cat) && !chunks.isEmpty()) {
-                    toRemove.add(id);
+            // Nahradíme getEntity(id) ručně
+            Entity entity = null;
+            for (Entity e : level.getAllEntities()) {
+                if (e.getUUID().equals(id)) {
+                    entity = e;
+                    break;
+                }
+            }
 
-                    for (ChunkPos chunk : chunks) {
-                        try {
-                            level.setChunkForced(chunk.x, chunk.z, false);
-                        } catch (Exception e) {
-                            System.err.println("Failed to unforce chunk " + chunk + ": " + e.getMessage());
-                        }
+            if (entity instanceof TamableAnimal tamable && (tamable instanceof Wolf || tamable instanceof Cat)) {
+                toRemove.add(id);
+                for (ChunkPos chunk : chunks) {
+                    try {
+                        level.setChunkForced(chunk.x, chunk.z, false);
+                    } catch (Exception e) {
+                        System.err.println("Failed to unforce chunk " + chunk + ": " + e.getMessage());
                     }
                 }
             }
