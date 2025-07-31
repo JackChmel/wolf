@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.*;
 
 @Mod("wolfchunkloader")
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class WolfChunkLoader {
 
     public static final HashMap<UUID, ChunkPos> WOLF_POSITIONS = new HashMap<>();
