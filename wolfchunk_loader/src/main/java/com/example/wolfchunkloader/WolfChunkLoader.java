@@ -47,7 +47,7 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onWorldLoad(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
-        server.levels().forEach(WolfChunkLoader::initializeForWorld);
+        server.getAllLevels().forEach(WolfChunkLoader::initializeForWorld);
     }
 
     public static void initializeForWorld(ServerLevel level) {
@@ -62,7 +62,7 @@ public class WolfChunkLoader {
 
     @SubscribeEvent
     public static void onWorldUnload(ServerStoppingEvent event) {
-        event.getServer().levels().forEach(WolfChunkLoader::cleanupForWorld);
+        event.getServer().getAllLevels().forEach(WolfChunkLoader::cleanupForWorld);
     }
 
     public static void cleanupForWorld(ServerLevel level) {
