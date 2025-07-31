@@ -7,7 +7,6 @@ import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -48,7 +47,7 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onWorldLoad(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
-        server.getAllLevels().forEach(WolfChunkLoader::initializeForWorld);
+        server.levels().forEach(WolfChunkLoader::initializeForWorld);
     }
 
     public static void initializeForWorld(ServerLevel level) {
@@ -63,7 +62,7 @@ public class WolfChunkLoader {
 
     @SubscribeEvent
     public static void onWorldUnload(ServerStoppingEvent event) {
-        event.getServer().getAllLevels().forEach(WolfChunkLoader::cleanupForWorld);
+        event.getServer().levels().forEach(WolfChunkLoader::cleanupForWorld);
     }
 
     public static void cleanupForWorld(ServerLevel level) {
@@ -73,7 +72,6 @@ public class WolfChunkLoader {
             UUID id = entry.getKey();
             Set<ChunkPos> chunks = entry.getValue();
 
-            // Nahradíme getEntity(id) ručně
             Entity entity = null;
             for (Entity e : level.getAllEntities()) {
                 if (e.getUUID().equals(id)) {
