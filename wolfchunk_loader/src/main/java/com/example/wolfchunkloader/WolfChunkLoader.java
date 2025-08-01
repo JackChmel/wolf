@@ -69,10 +69,13 @@ public class WolfChunkLoader {
         }
     }
 
-  private static List<ServerLevel> levelsFromServer() {
-      MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
-      return server != null ? List.copyOf(server.getAllLevels()) : Collections.emptyList();  // ZDE upraveno z levels() na getAllLevels()
-  }
+    private static List<ServerLevel> levelsFromServer() {
+       MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+       if (server == null) {
+          return Collections.emptyList();
+  } 
+     return StreamSupport.stream(server.getAllLevels().spliterator(), false).toList();
+}
 
     private static void initializeForWorld(ServerLevel level) {
         for (Entity entity : level.getAllEntities()) {
