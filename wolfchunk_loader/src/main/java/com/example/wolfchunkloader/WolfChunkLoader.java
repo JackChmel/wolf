@@ -36,14 +36,13 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
-        for (ResourceKey<Level> key : server.levelKeys()) {
+        for (ResourceKey<Level> key : server.getLevelKeys()) {
             ServerLevel level = server.getLevel(key);
             if (level != null) {
                 initializeForWorld(level);
             }
         }
     }
-
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
