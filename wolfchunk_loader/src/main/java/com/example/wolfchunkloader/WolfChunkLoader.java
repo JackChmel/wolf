@@ -36,7 +36,7 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
-        for (ResourceKey<Level> key : server.levelKeys()) {
+        for (ResourceKey<Level> key : server.getAllDimensions().keySet()) {
             ServerLevel level = server.getLevel(key);
             if (level != null) {
                 initializeForWorld(level);
@@ -77,7 +77,8 @@ public class WolfChunkLoader {
         if (server == null) return Collections.emptyList();
 
         List<ServerLevel> levels = new ArrayList<>();
-        for (ResourceKey<Level> key : server.levelKeys()) {
+        Map<ResourceKey<Level>, ServerLevel> dims = server.getAllDimensions();
+        for (ResourceKey<Level> key : dims.keySet()) {
             ServerLevel level = server.getLevel(key);
             if (level != null) levels.add(level);
         }
