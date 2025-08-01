@@ -1,64 +1,83 @@
 package com.example.wolfchunkloader;
 
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.common.MinecraftForge;
 
 import java.util.*;
 
 @Mod("wolfchunkloader")
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber
 public class WolfChunkLoader {
 
-    public static final HashMap<UUID, ChunkPos> WOLF_POSITIONS = new HashMap<>();
-    public static final HashMap<UUID, Set<ChunkPos>> WOLF_CHUNKS = new HashMap<>();
-    public static final HashMap<ChunkPos, Set<UUID>> CHUNK_WOLVES = new HashMap<>();
+    private static final HashMap<UUID, ChunkPos> WOLF_POSITIONS = new HashMap<>();
+    private static final HashMap<UUID, Set<ChunkPos>> WOLF_CHUNKS = new HashMap<>();
+    private static final HashMap<ChunkPos, Set<UUID>> CHUNK_WOLVES = new HashMap<>();
+
+    private static int tickCounter = 0;
 
     public WolfChunkLoader() {
-        MinecraftForge.EVENT_BUS.register(this); // Registrace pro FMLServerStartedEvent
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
-        public static void onServerStarted(ServerStartedEvent event) {
+    public static void onServerStarted(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
-        for (ServerLevel level : server.getAllLevels()) {
+        for (ServerLevel level : server.levels()) {
             initializeForWorld(level);
         }
     }
 
     @SubscribeEvent
-    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-        Entity e = event.getEntity();
-        if (e instanceof TamableAnimal tamable && (tamable instanceof Wolf || tamable instanceof Cat)) {
-            if (tamable.isTame() && !tamable.level().isClientSide()) {
-                onMobTick(tamable);
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+
+        tickCounter++;
+        if (tickCounter >= 20) {
+            tickCounter = 0;
+
+            for (ServerLevel level : Objects.requireNonNull(levelsFromServer())) {
+                for (Entity entity : level.getAllEntities()) {
+                    if (entity instanceof TamableAnimal tamable &&
+                        (tamable instanceof Wolf || tamable instanceof Cat) &&
+                        tamable.isTame()) {
+                        onMobTick(tamable);
+                    }
+                }
             }
         }
     }
 
     @SubscribeEvent
     public static void onEntityLeaveWorld(EntityLeaveLevelEvent event) {
-        Entity e = event.getEntity();
-        if (e instanceof TamableAnimal tamable && (tamable instanceof Wolf || tamable instanceof Cat)) {
-            if (tamable.isTame() && !tamable.level().isClientSide()) {
-                onMobRemoved(tamable);
-            }
+        Entity entity = event.getEntity();
+        if (entity instanceof TamableAnimal tamable &&
+            (tamable instanceof Wolf || tamable instanceof Cat) &&
+            tamable.isTame() && !entity.level().isClientSide()) {
+            onMobRemoved(tamable);
         }
     }
 
-    public static void initializeForWorld(ServerLevel level) {
+    private static List<ServerLevel> levelsFromServer() {
+        MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+        return server != null ? server.levels() : null;
+    }
+
+    private static void initializeForWorld(ServerLevel level) {
         for (Entity entity : level.getAllEntities()) {
-            if (entity instanceof TamableAnimal tamable && tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat)) {
+            if (entity instanceof TamableAnimal tamable &&
+                tamable.isTame() &&
+                (tamable instanceof Wolf || tamable instanceof Cat)) {
                 Set<ChunkPos> chunks = getChunksAroundMob(tamable);
                 forceLoadChunks(level, chunks);
                 WOLF_CHUNKS.put(tamable.getUUID(), chunks);
@@ -83,7 +102,7 @@ public class WolfChunkLoader {
         }
     }
 
-    public static void onMobTick(TamableAnimal mob) {
+    private static void onMobTick(TamableAnimal mob) {
         UUID id = mob.getUUID();
         ChunkPos currentChunk = new ChunkPos(mob.blockPosition());
         ChunkPos lastKnownChunk = WOLF_POSITIONS.get(id);
@@ -134,7 +153,7 @@ public class WolfChunkLoader {
         }
     }
 
-    public static void onMobRemoved(TamableAnimal mob) {
+    private static void onMobRemoved(TamableAnimal mob) {
         UUID id = mob.getUUID();
         Set<ChunkPos> chunks = WOLF_CHUNKS.remove(id);
         WOLF_POSITIONS.remove(id);
