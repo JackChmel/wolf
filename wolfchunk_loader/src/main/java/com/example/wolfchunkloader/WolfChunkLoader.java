@@ -11,7 +11,7 @@ import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLServerStartedEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.util.*;
@@ -29,7 +29,7 @@ public class WolfChunkLoader {
     }
 
     @SubscribeEvent
-    public static void onServerStarted(FMLServerStartedEvent event) {
+        public static void onServerStarted(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
         for (ServerLevel level : server.getAllLevels()) {
             initializeForWorld(level);
