@@ -13,7 +13,7 @@ import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import java.util.stream.StreamSupport;
+import net.minecraftforge.server.ServerLifecycleHooks;  // ← přidáno
 
 import java.util.*;
 
@@ -31,23 +31,22 @@ public class WolfChunkLoader {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-   @SubscribeEvent
-   public static void onServerStarted(ServerStartedEvent event) {
-       MinecraftServer server = event.getServer();
-       for (ServerLevel level : server.getAllLevels()) {  // ZDE upraveno z levels() na getAllLevels()
-           initializeForWorld(level);
-      }
-   }
+    @SubscribeEvent
+    public static void onServerStarted(ServerStartedEvent event) {
+        MinecraftServer server = event.getServer();
+        // změna: getAllLevels() → levels()
+        for (ServerLevel level : server.levels()) {
+            initializeForWorld(level);
+        }
+    }
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-
         tickCounter++;
         if (tickCounter >= 20) {
             tickCounter = 0;
-
-            for (ServerLevel level : Objects.requireNonNull(levelsFromServer())) {
+            for (ServerLevel level : levelsFromServer()) {
                 for (Entity entity : level.getAllEntities()) {
                     if (entity instanceof TamableAnimal tamable &&
                         (tamable instanceof Wolf || tamable instanceof Cat) &&
@@ -70,12 +69,10 @@ public class WolfChunkLoader {
     }
 
     private static List<ServerLevel> levelsFromServer() {
-       MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
-       if (server == null) {
-          return Collections.emptyList();
-  } 
-     return StreamSupport.stream(server.getAllLevels().spliterator(), false).toList();
-}
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        // změna: StreamSupport nebo getAllLevels() nepotřebujeme, stačí levels()
+        return server != null ? server.levels() : Collections.emptyList();
+    }
 
     private static void initializeForWorld(ServerLevel level) {
         for (Entity entity : level.getAllEntities()) {
@@ -110,7 +107,6 @@ public class WolfChunkLoader {
         UUID id = mob.getUUID();
         ChunkPos currentChunk = new ChunkPos(mob.blockPosition());
         ChunkPos lastKnownChunk = WOLF_POSITIONS.get(id);
-
         if (lastKnownChunk == null || !lastKnownChunk.equals(currentChunk)) {
             updateMobChunkLoading(mob, currentChunk, lastKnownChunk);
             WOLF_POSITIONS.put(id, currentChunk);
@@ -120,13 +116,10 @@ public class WolfChunkLoader {
     private static void updateMobChunkLoading(TamableAnimal mob, ChunkPos newCenter, ChunkPos oldCenter) {
         UUID id = mob.getUUID();
         ServerLevel level = (ServerLevel) mob.level();
-
         Set<ChunkPos> newChunks = getChunksAroundMob(mob);
         Set<ChunkPos> oldChunks = WOLF_CHUNKS.getOrDefault(id, new HashSet<>());
-
         Set<ChunkPos> chunksToUnload = new HashSet<>(oldChunks);
         chunksToUnload.removeAll(newChunks);
-
         Set<ChunkPos> chunksToLoad = new HashSet<>(newChunks);
         chunksToLoad.removeAll(oldChunks);
 
@@ -137,12 +130,10 @@ public class WolfChunkLoader {
                 CHUNK_WOLVES.remove(chunk);
             }
         }
-
         for (ChunkPos chunk : chunksToLoad) {
             addMobToChunk(id, chunk);
             level.setChunkForced(chunk.x, chunk.z, true);
         }
-
         WOLF_CHUNKS.put(id, newChunks);
     }
 
@@ -152,16 +143,13 @@ public class WolfChunkLoader {
 
     private static void removeMobFromChunk(UUID id, ChunkPos chunk) {
         Set<UUID> mobSet = CHUNK_WOLVES.get(chunk);
-        if (mobSet != null) {
-            mobSet.remove(id);
-        }
+        if (mobSet != null) mobSet.remove(id);
     }
 
     private static void onMobRemoved(TamableAnimal mob) {
         UUID id = mob.getUUID();
         Set<ChunkPos> chunks = WOLF_CHUNKS.remove(id);
         WOLF_POSITIONS.remove(id);
-
         if (chunks != null) {
             ServerLevel level = (ServerLevel) mob.level();
             for (ChunkPos chunk : chunks) {
