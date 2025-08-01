@@ -33,7 +33,7 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
-        for (ServerLevel level : server.levels()) {
+        for (ServerLevel level : server.getAllLevels()) {
             initializeForWorld(level);
         }
     }
@@ -70,7 +70,7 @@ public class WolfChunkLoader {
 
     private static List<ServerLevel> levelsFromServer() {
         MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
-        return server != null ? server.levels() : null;
+        return server != null ? server.getAllLevels() : null;
     }
 
     private static void initializeForWorld(ServerLevel level) {
