@@ -1,5 +1,6 @@
 package com.example.wolfchunkloader;
 
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -7,13 +8,14 @@ import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.server.ServerLifecycleHooks;  // ← přidáno
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
 
@@ -34,9 +36,11 @@ public class WolfChunkLoader {
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
-        // změna: getAllLevels() → levels()
-        for (ServerLevel level : server.levels()) {
-            initializeForWorld(level);
+        for (ResourceKey<Level> key : server.levelKeys()) {
+            ServerLevel level = server.getLevel(key);
+            if (level != null) {
+                initializeForWorld(level);
+            }
         }
     }
 
@@ -70,8 +74,14 @@ public class WolfChunkLoader {
 
     private static List<ServerLevel> levelsFromServer() {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        // změna: StreamSupport nebo getAllLevels() nepotřebujeme, stačí levels()
-        return server != null ? server.levels() : Collections.emptyList();
+        if (server == null) return Collections.emptyList();
+
+        List<ServerLevel> levels = new ArrayList<>();
+        for (ResourceKey<Level> key : server.levelKeys()) {
+            ServerLevel level = server.getLevel(key);
+            if (level != null) levels.add(level);
+        }
+        return levels;
     }
 
     private static void initializeForWorld(ServerLevel level) {
@@ -118,8 +128,10 @@ public class WolfChunkLoader {
         ServerLevel level = (ServerLevel) mob.level();
         Set<ChunkPos> newChunks = getChunksAroundMob(mob);
         Set<ChunkPos> oldChunks = WOLF_CHUNKS.getOrDefault(id, new HashSet<>());
+
         Set<ChunkPos> chunksToUnload = new HashSet<>(oldChunks);
         chunksToUnload.removeAll(newChunks);
+
         Set<ChunkPos> chunksToLoad = new HashSet<>(newChunks);
         chunksToLoad.removeAll(oldChunks);
 
@@ -130,10 +142,12 @@ public class WolfChunkLoader {
                 CHUNK_WOLVES.remove(chunk);
             }
         }
+
         for (ChunkPos chunk : chunksToLoad) {
             addMobToChunk(id, chunk);
             level.setChunkForced(chunk.x, chunk.z, true);
         }
+
         WOLF_CHUNKS.put(id, newChunks);
     }
 
