@@ -11,7 +11,8 @@ import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.server.level.ServerLevelEvents;
+import net.minecraftforge.fml.event.lifecycle.FMLServerStartedEvent;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.*;
 
@@ -24,8 +25,15 @@ public class WolfChunkLoader {
     public static final HashMap<ChunkPos, Set<UUID>> CHUNK_WOLVES = new HashMap<>();
 
     public WolfChunkLoader() {
-        ServerLevelEvents.LOAD.register(WolfChunkLoader::initializeForWorld);
-        ServerLevelEvents.UNLOAD.register(WolfChunkLoader::cleanupForWorld);
+        MinecraftForge.EVENT_BUS.register(this); // Registrace pro FMLServerStartedEvent
+    }
+
+    @SubscribeEvent
+    public static void onServerStarted(FMLServerStartedEvent event) {
+        MinecraftServer server = event.getServer();
+        for (ServerLevel level : server.getAllLevels()) {
+            initializeForWorld(level);
+        }
     }
 
     @SubscribeEvent
@@ -58,55 +66,9 @@ public class WolfChunkLoader {
         }
     }
 
-    public static void cleanupForWorld(ServerLevel level) {
-        Set<UUID> toRemove = new HashSet<>();
-
-        for (Map.Entry<UUID, Set<ChunkPos>> entry : WOLF_CHUNKS.entrySet()) {
-            UUID id = entry.getKey();
-            Set<ChunkPos> chunks = entry.getValue();
-
-            Entity entity = null;
-            for (Entity e : level.getAllEntities()) {
-                if (e.getUUID().equals(id)) {
-                    entity = e;
-                    break;
-                }
-            }
-
-            if (entity instanceof TamableAnimal tamable && (tamable instanceof Wolf || tamable instanceof Cat)) {
-                toRemove.add(id);
-                for (ChunkPos chunk : chunks) {
-                    try {
-                        level.setChunkForced(chunk.x, chunk.z, false);
-                    } catch (Exception e) {
-                        System.err.println("Failed to unforce chunk " + chunk + ": " + e.getMessage());
-                    }
-                }
-            }
-        }
-
-        for (UUID id : toRemove) {
-            Set<ChunkPos> chunks = WOLF_CHUNKS.remove(id);
-            WOLF_POSITIONS.remove(id);
-
-            if (chunks != null) {
-                for (ChunkPos chunk : chunks) {
-                    Set<UUID> mobSet = CHUNK_WOLVES.get(chunk);
-                    if (mobSet != null) {
-                        mobSet.remove(id);
-                        if (mobSet.isEmpty()) {
-                            CHUNK_WOLVES.remove(chunk);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private static Set<ChunkPos> getChunksAroundMob(TamableAnimal mob) {
         ChunkPos center = new ChunkPos(mob.blockPosition());
         Set<ChunkPos> chunkSet = new HashSet<>();
-
         for (int x = -1; x <= 1; ++x) {
             for (int z = -1; z <= 1; ++z) {
                 chunkSet.add(new ChunkPos(center.x + x, center.z + z));
