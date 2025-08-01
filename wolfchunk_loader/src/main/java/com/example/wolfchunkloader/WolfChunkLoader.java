@@ -70,7 +70,7 @@ public class WolfChunkLoader {
 
     private static List<ServerLevel> levelsFromServer() {
         MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
-        return server != null ? server.getAllLevels() : null;
+        return server != null ? StreamSupport.stream(server.getAllLevels().spliterator(), false).toList() : Collections.emptyList();
     }
 
     private static void initializeForWorld(ServerLevel level) {
