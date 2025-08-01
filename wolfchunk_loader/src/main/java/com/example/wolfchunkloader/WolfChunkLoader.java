@@ -9,10 +9,9 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.server.level.ServerLevelEvents;
 
 import java.util.*;
 
@@ -23,6 +22,11 @@ public class WolfChunkLoader {
     public static final HashMap<UUID, ChunkPos> WOLF_POSITIONS = new HashMap<>();
     public static final HashMap<UUID, Set<ChunkPos>> WOLF_CHUNKS = new HashMap<>();
     public static final HashMap<ChunkPos, Set<UUID>> CHUNK_WOLVES = new HashMap<>();
+
+    public WolfChunkLoader() {
+        ServerLevelEvents.LOAD.register(WolfChunkLoader::initializeForWorld);
+        ServerLevelEvents.UNLOAD.register(WolfChunkLoader::cleanupForWorld);
+    }
 
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent event) {
@@ -44,12 +48,6 @@ public class WolfChunkLoader {
         }
     }
 
-    @SubscribeEvent
-    public static void onWorldLoad(ServerStartedEvent event) {
-        MinecraftServer server = event.getServer();
-        server.getAllLevels().forEach(WolfChunkLoader::initializeForWorld);
-    }
-
     public static void initializeForWorld(ServerLevel level) {
         for (Entity entity : level.getAllEntities()) {
             if (entity instanceof TamableAnimal tamable && tamable.isTame() && (tamable instanceof Wolf || tamable instanceof Cat)) {
@@ -58,11 +56,6 @@ public class WolfChunkLoader {
                 WOLF_CHUNKS.put(tamable.getUUID(), chunks);
             }
         }
-    }
-
-    @SubscribeEvent
-    public static void onWorldUnload(ServerStoppingEvent event) {
-        event.getServer().getAllLevels().forEach(WolfChunkLoader::cleanupForWorld);
     }
 
     public static void cleanupForWorld(ServerLevel level) {
