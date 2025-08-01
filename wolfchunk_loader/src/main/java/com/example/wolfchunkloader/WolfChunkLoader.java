@@ -31,13 +31,13 @@ public class WolfChunkLoader {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-  @SubscribeEvent
-    public static void onServerStarted(ServerStartedEvent event) {
-    MinecraftServer server = event.getServer();
-    for (ServerLevel level : server.levels()) {
-        initializeForWorld(level);
-  }
-}
+   @SubscribeEvent
+   public static void onServerStarted(ServerStartedEvent event) {
+       MinecraftServer server = event.getServer();
+       for (ServerLevel level : server.getAllLevels()) {  // ZDE upraveno z levels() na getAllLevels()
+           initializeForWorld(level);
+      }
+   }
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -69,10 +69,10 @@ public class WolfChunkLoader {
         }
     }
 
-    private static List<ServerLevel> levelsFromServer() {
-       MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
-       return server != null ? server.levels().stream().toList() : Collections.emptyList();
-    }
+  private static List<ServerLevel> levelsFromServer() {
+      MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+      return server != null ? List.copyOf(server.getAllLevels()) : Collections.emptyList();  // ZDE upraveno z levels() na getAllLevels()
+  }
 
     private static void initializeForWorld(ServerLevel level) {
         for (Entity entity : level.getAllEntities()) {
